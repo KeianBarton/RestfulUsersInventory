@@ -13,37 +13,12 @@ namespace RestfulUsersInventory.Api
         {
             routes.MapRoute
             (
-                name: typeof(UsersController).GetControllerName(),
+                name: "default",
                 template: $"{ApiPrefix}/{{controller}}/{{action}}/{{id?}}",
                 defaults: new
                 {
                     controller = typeof(UsersController).GetControllerName(),
                     action = nameof(UsersController.GetUsers)
-                }
-            );
-
-            routes.MapRoute
-            (
-                name: typeof(ItemsController).GetControllerName(),
-                template: $"{ApiPrefix}/{{controller}}/{{action}}/{{id?}}",
-                defaults: new
-                {
-                    controller = typeof(ItemsController).GetControllerName(),
-                    action = nameof(ItemsController.GetItems)
-                }
-            );
-
-            routes.MapRoute
-            (
-                name: typeof(UserInventoryController).GetControllerName(),
-                template:
-                    $"{ApiPrefix}/" +
-                    $"{typeof(UsersController).GetControllerName()}/" +
-                    "{userId}/{controller}/{action}/{itemId?}",
-                defaults: new
-                {
-                    controller = typeof(UserInventoryController).GetControllerName(),
-                    action = nameof(UserInventoryController.GetItemsForUser)
                 }
             );
         }

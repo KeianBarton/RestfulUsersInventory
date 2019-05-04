@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 namespace RestfulUsersInventory.Api.Controllers
 {
+    [Route("api/")]
     public class ItemsController : ControllerBase
     {
         private readonly IQueryHelper _queryHelper;
@@ -16,7 +17,7 @@ namespace RestfulUsersInventory.Api.Controllers
             _queryHelper = queryHelper;
         }
 
-        [HttpGet]
+        [HttpGet("Items")]
         public async Task<IActionResult> GetItems()
         {
             IEnumerable<ItemDto> items = await _queryHelper.ItemQueries.GetItems();
@@ -27,19 +28,7 @@ namespace RestfulUsersInventory.Api.Controllers
             return Ok(items);
         }
 
-        [HttpGet]
-        public async Task<IActionResult> GetItems([FromBody] IEnumerable<int> ids)
-        {
-            IEnumerable<int> uniqueIds = ids.Distinct().OrderBy(i => i).ToList();
-            IEnumerable<ItemDto> items = await _queryHelper.ItemQueries.GetItems(uniqueIds);
-            if (!items.Any())
-            {
-                return NotFound("No items found for the requested IDs");
-            }
-            return Ok(items);
-        }
-
-        [HttpGet]
+        [HttpGet("Items/{id}")]
         public async Task<IActionResult> GetItem(int id)
         {
             ItemDto item = await _queryHelper.ItemQueries.GetItem(id);

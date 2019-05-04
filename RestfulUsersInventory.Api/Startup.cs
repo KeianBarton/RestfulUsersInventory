@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using RestfulUsersInventory.DataAccess;
+using RestfulUsersInventory.DataQueries;
 using RestfulUsersInventory.DataQueries.DTOs;
 
 namespace RestfulUsersInventory.Api
@@ -25,8 +26,15 @@ namespace RestfulUsersInventory.Api
             string connectionString = _configuration.GetConnectionString("RestfulUsersInventoryDb");
             services.AddDbContext<ApplicationDbContext>
             (
-                options => options.UseSqlite(connectionString)
+                options => options
+                    .UseSqlite
+                    (
+                        connectionString,
+                        // DbContext is in different assembly
+                        builder => builder.MigrationsAssembly("RestfulUsersInventory.DataAccess")
+                    )
             );
+            services.AddTransient<IQueryHelper, QueryHelper>();
 
             // AutoMapper
             var mappingConfig = new MapperConfiguration(mc => mc.AddProfile(new MappingProfile()));

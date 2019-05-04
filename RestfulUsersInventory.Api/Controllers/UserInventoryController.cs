@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 namespace RestfulUsersInventory.Api.Controllers
 {
+    [Route("api/")]
     public class UserInventoryController : ControllerBase
     {
         private readonly IQueryHelper _queryHelper;
@@ -16,8 +17,13 @@ namespace RestfulUsersInventory.Api.Controllers
             _queryHelper = queryHelper;
         }
 
-        [HttpGet]
-        public async Task<IActionResult> GetItemForUser(int userId, [FromBody] ItemDto itemReq)
+        [HttpGet("Users/{userId}/Items/{itemId}")]
+        public async Task<IActionResult> GetItemForUser(int userId, int itemId)
+        {
+            return await GetItemForUser(userId, new ItemDto { Id = itemId });
+        }
+
+        private async Task<IActionResult> GetItemForUser(int userId, ItemDto itemReq)
         {
             if (itemReq == null)
             {
@@ -37,7 +43,7 @@ namespace RestfulUsersInventory.Api.Controllers
             return Ok(itemRes);
         }
 
-        [HttpGet]
+        [HttpGet("Users/{userId}/Items")]
         public async Task<IActionResult> GetItemsForUser(int userId)
         {
             UserDto user = await _queryHelper.UserQueries.GetUser(userId);
@@ -54,7 +60,7 @@ namespace RestfulUsersInventory.Api.Controllers
             return Ok(items);
         }
 
-        [HttpPost]
+        [HttpPost("Users/{userId}/Items")]
         public async Task<IActionResult> AddItemForUser(int userId, [FromBody] ItemDto item)
         {
             if (item == null)
@@ -82,10 +88,9 @@ namespace RestfulUsersInventory.Api.Controllers
             return Ok(itemAdded);
         }
 
-        [HttpPost]
+        [HttpPost("Users/{userId}/Items")]
         public async Task<IActionResult> AddItemsForUser(int userId, [FromBody] IEnumerable<ItemDto> items)
         {
-            return await Task.Run(() => { return Ok(); });
             //if (items == null || !items.Any())
             //{
             //    return BadRequest("Items in request are malformed");
@@ -96,9 +101,9 @@ namespace RestfulUsersInventory.Api.Controllers
             //    return NotFound($"No user can be found with ID {userId}");
             //}
             //var itemsAdded = new List<ItemDto>();
-            //var itemsFromDb = _queryHelper.ItemQueries.GetItems
+            //var itemsFromDb = _queryHelper.ItemQueries.GetItems()
             //int numberOfItemUserHas = await _queryHelper.UserInventoryQueries.GetCountOfItemUserHas(userId, itemInGroup.Id);
-            //foreach(ItemDto itemInGroup in ItemsThatCanBeAddedBeforeLimit(items, numberOfItemsUserHas))
+            //foreach (ItemDto itemInGroup in ItemsThatCanBeAddedBeforeLimit(items, numberOfItemsUserHas))
             //{
             //    ItemDto itemAdded = await _queryHelper.UserInventoryQueries.AddItemForUser(userId, itemInGroup);
             //    itemsAdded.Add(itemAdded);
@@ -106,7 +111,7 @@ namespace RestfulUsersInventory.Api.Controllers
             //return Ok(itemsAdded);
         }
 
-        [HttpDelete]
+        [HttpDelete("Users/{userId}/Items")]
         public async Task<IActionResult> RemoveItemForUser(int userId, [FromBody] ItemDto item)
         {
             if (item == null)
@@ -134,10 +139,9 @@ namespace RestfulUsersInventory.Api.Controllers
             return Ok();
         }
 
-        [HttpDelete]
+        [HttpDelete("Users/{userId}/Items")]
         public async Task<IActionResult> RemoveItemsForUser(int userId, [FromBody] IEnumerable<ItemDto> items)
         {
-            return await Task.Run(() => { return Ok(); });
             //if (items == null || !items.Any())
             //{
             //    return BadRequest("Items in request are malformed");

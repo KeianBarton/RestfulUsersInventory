@@ -13,7 +13,7 @@ namespace RestfulUsersInventory.Api.Extensions
             }
 
             string fullClassName = controllerType.Name;
-            string controllerName = fullClassName.Replace(nameof(ControllerBase), string.Empty);
+            string controllerName = fullClassName.Replace(nameof(Controller), string.Empty);
             return controllerName;
         }
     }

@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 namespace RestfulUsersInventory.Api.Controllers
 {
+    [Route("api/")]
     public class UsersController : ControllerBase
     {
         private readonly IQueryHelper _queryHelper;
@@ -16,7 +17,7 @@ namespace RestfulUsersInventory.Api.Controllers
             _queryHelper = queryHelper;
         }
 
-        [HttpGet]
+        [HttpGet("Users")]
         public async Task<IActionResult> GetUsers()
         {
             IEnumerable<UserDto> users = await _queryHelper.UserQueries.GetUsers();
@@ -27,19 +28,7 @@ namespace RestfulUsersInventory.Api.Controllers
             return Ok(users);
         }
 
-        [HttpGet]
-        public async Task<IActionResult> GetUsers([FromBody] IEnumerable<int> ids)
-        {
-            IEnumerable<int> uniqueIds = ids.Where(i => i > 0).Distinct().OrderBy(i => i).ToList();
-            IEnumerable<UserDto> users = await _queryHelper.UserQueries.GetUsers(uniqueIds);
-            if (!users.Any())
-            {
-                return NotFound("No users found for the requested IDs");
-            }
-            return Ok(users);
-        }
-
-        [HttpGet]
+        [HttpGet("Users/{id}")]
         public async Task<IActionResult> GetUser(int id)
         {
             UserDto user = await _queryHelper.UserQueries.GetUser(id);
