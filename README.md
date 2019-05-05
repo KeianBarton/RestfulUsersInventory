@@ -21,7 +21,7 @@ Upon running the app, here are some example API calls you can make (e.g. through
 - **[Remove items from a user's inventory](#Remove-Items-From-A-Users-Inventory)**
 
 ### **[Get all users](#Get-All-Users)**
-[Return to API List](##Example-Api-Calls)
+[Return to API List](#Example-Api-Calls)
 
 ```
 https://localhost:44301/api/users or
@@ -42,7 +42,7 @@ should return
 ]
 ```
 ### **[Get a user](#Get-A-User)**
-[Return to API List](##Example-Api-Calls)
+[Return to API List](#Example-Api-Calls)
 
 ```
 https://localhost:44301/api/users/1 or
@@ -57,7 +57,7 @@ should return
 }
 ```
 ### **[Get all items](#Get-All-Items)**
-[Return to API List](##Example-Api-Calls)
+[Return to API List](#Example-Api-Calls)
 
 ```
 https://localhost:44301/api/items or
@@ -82,7 +82,7 @@ should return
 ]
 ```
 ### **[Get an item](#Get-An-Item)**
-[Return to API List](##Example-Api-Calls)
+[Return to API List](#Example-Api-Calls)
 
 ```
 https://localhost:44301/api/items/1 or
@@ -97,7 +97,7 @@ should return
 }
 ```
 ### **[Get user's total inventory](#Get-Users-Total-Inventory)**
-[Return to API List](##Example-Api-Calls)
+[Return to API List](#Example-Api-Calls)
 
 ```
 https://localhost:44301/api/users/1/items or
@@ -124,7 +124,7 @@ should return
 ]
 ```
 ### **[Get user's inventory for specific item](#Get-Users-Inventory-For-Specific-Item)**
-[Return to API List](##Example-Api-Calls)
+[Return to API List](#Example-Api-Calls)
 
 ```
 https://localhost:44301/api/users/1/items/1 or
@@ -142,7 +142,7 @@ should return
 }
 ```
 ### **[Add items to a user's inventory](#Add-Items-To-A-Users-Inventory)**
-[Return to API List](##Example-Api-Calls)
+[Return to API List](#Example-Api-Calls)
 ```
 https://localhost:44301/api/users/1/items or
 http://localhost:52608/api/users/1/items
@@ -180,7 +180,7 @@ Sending multiple items will add a range up until the maximum item count of 50 e.
 [{ "name": "Longsword" },{ "name": "Longsword" },{ "name": "Longsword" },{ "name": "Longsword" },{ "name": "Longsword" }]
 ```
 ### **[Remove items from a user's inventory](#Remove-Items-From-A-Users-Inventory)**
-[Return to API List](##Example-Api-Calls)
+[Return to API List](#Example-Api-Calls)
 ```
 https://localhost:44301/api/users/1/items or
 http://localhost:52608/api/users/1/items
