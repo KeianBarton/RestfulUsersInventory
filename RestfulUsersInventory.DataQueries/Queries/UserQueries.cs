@@ -35,15 +35,5 @@ namespace RestfulUsersInventory.DataQueries.Queries
             IEnumerable<UserDto> dtos = _mapper.Map<IEnumerable<UserDto>>(users);
             return dtos;
         }
-
-        public async Task<IEnumerable<UserDto>> GetUsers(IEnumerable<int> ids)
-        {
-            IEnumerable<User> users = await _context.Users
-                .AsNoTracking()
-                .Where(i => ids.Any(id => id == i.Id))
-                .ToListAsync();
-            IEnumerable<UserDto> dtos = _mapper.Map<IEnumerable<UserDto>>(users);
-            return dtos;
-        }
     }
 }

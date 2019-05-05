@@ -5,7 +5,16 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="8.1.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="2.2.4" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.0.1" />
     <PackageReference Include="xunit" Version="2.4.0" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\RestfulUsersInventory.DataAccess\RestfulUsersInventory.DataAccess.csproj" />
+    <ProjectReference Include="..\RestfulUsersInventory.DataQueries\RestfulUsersInventory.DataQueries.csproj" />
   </ItemGroup>
 
 </Project>

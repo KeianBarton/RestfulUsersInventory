@@ -61,28 +61,6 @@ namespace RestfulUsersInventory.Api.Controllers
         }
 
         [HttpPost("Users/{userId}/Items")]
-        public async Task<IActionResult> AddItemForUser(int userId, [FromBody] ItemDto item)
-        {
-            if (item == null)
-            {
-                return BadRequest("Item in request is malformed");
-            }
-            ItemDto itemFromDb = await _queryHelper.ItemQueries.GetItem(item);
-            if (itemFromDb == null)
-            {
-                return NotFound($"No item can be found with the data in the request body");
-            }
-            UserDto user = await _queryHelper.UserQueries.GetUser(userId);
-            if (user == null)
-            {
-                return NotFound($"No user can be found with ID {userId}");
-            }
-            await _queryHelper.UserItemQueries.AddItemForUser(userId, item);
-            UserItemDto userItem = await _queryHelper.UserItemQueries.GetMatchingItemsForUser(userId, itemFromDb);
-            return Ok(userItem);
-        }
-
-        [HttpPost("Users/{userId}/Items")]
         public async Task<IActionResult> AddItemsForUser(int userId, [FromBody] IEnumerable<ItemDto> items)
         {
             if (items == null || !items.Any())
@@ -100,34 +78,6 @@ namespace RestfulUsersInventory.Api.Controllers
             }
             IEnumerable<UserItemDto> userItems = await _queryHelper.UserItemQueries.GetAllItemsForUser(userId);
             return Ok(userItems);
-        }
-
-        [HttpDelete("Users/{userId}/Items")]
-        public async Task<IActionResult> RemoveItemForUser(int userId, [FromBody] ItemDto item)
-        {
-            if (item == null)
-            {
-                return BadRequest("Item in request is malformed");
-            }
-            ItemDto itemFromDb = await _queryHelper.ItemQueries.GetItem(item);
-            if (itemFromDb == null)
-            {
-                return NotFound($"No item can be found with the data in the request body");
-            }
-            UserDto user = await _queryHelper.UserQueries.GetUser(userId);
-            if (user == null)
-            {
-                return NotFound($"No user can be found with ID {userId}");
-            }
-            bool userHasItem = await _queryHelper.UserItemQueries
-                .DoesUserHaveItem(userId, item);
-            if (!userHasItem)
-            {
-                return NotFound($"The user with ID {userId} does not have item in the request");
-            }
-            await _queryHelper.UserItemQueries.RemoveItemForUser(userId, item);
-            UserItemDto userItem = await _queryHelper.UserItemQueries.GetMatchingItemsForUser(userId, itemFromDb);
-            return Ok(userItem);
         }
 
         [HttpDelete("Users/{userId}/Items")]

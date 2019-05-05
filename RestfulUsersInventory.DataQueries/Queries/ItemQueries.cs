@@ -34,7 +34,7 @@ namespace RestfulUsersInventory.DataQueries.Queries
             Item itemFromDb = await _context.Items
                 .AsNoTracking()
                 .SingleOrDefaultAsync(i => i.Id == item.Id || i.Name == item.Name);
-            ItemDto dto = _mapper.Map<ItemDto>(item);
+            ItemDto dto = _mapper.Map<ItemDto>(itemFromDb);
             return dto;
         }
 
@@ -42,16 +42,6 @@ namespace RestfulUsersInventory.DataQueries.Queries
         {
             IEnumerable<Item> items = await _context.Items
                 .AsNoTracking()
-                .ToListAsync();
-            IEnumerable<ItemDto> dtos = _mapper.Map<IEnumerable<ItemDto>>(items);
-            return dtos;
-        }
-
-        public async Task<IEnumerable<ItemDto>> GetItems(IEnumerable<int> ids)
-        {
-            IEnumerable<Item> items = await _context.Items
-                .AsNoTracking()
-                .Where(i => ids.Any(id => id == i.Id))
                 .ToListAsync();
             IEnumerable<ItemDto> dtos = _mapper.Map<IEnumerable<ItemDto>>(items);
             return dtos;
