@@ -73,7 +73,7 @@ namespace RestfulUsersInventory.DataQueries.Queries
                 return;
             }
             int numberOfItems = await GetNumberOfMatchingItemsForUser(itemFromDb.Id, userId);
-            if (numberOfItems > UserItemDto.MaximumNumberOfAnyItemAllowed)
+            if (numberOfItems == UserItemDto.MaximumNumberOfAnyItemAllowed)
             {
                 return;
             }
