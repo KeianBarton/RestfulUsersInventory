@@ -24,17 +24,21 @@ namespace RestfulUsersInventory.DataQueries.Queries
         {
             return await _context.UserItems
                 .AsNoTracking()
-                .Where(ui => ui.Item.Id == item.Id || ui.Item.Name == item.Name)
-                .AnyAsync(ui => ui.UserId == userId);
+                .AnyAsync
+                (
+                    ui =>
+                    ui.UserId == userId &&
+                    (ui.Item.Id == item.Id || ui.Item.Name == item.Name)
+                );
         }
 
         public async Task<IEnumerable<UserItemDto>> GetAllItemsForUser(int userId)
         {
             IEnumerable<UserItem> userItems = await _context.UserItems
                 .AsNoTracking()
-                .Include(ui => ui.Item)
-                .Include(ui => ui.User)
                 .Where(ui => ui.UserId == userId)
+                .Include(ui => ui.Item) // Required for mapping
+                .Include(ui => ui.User) // Required for mapping
                 .GroupBy(ui => new { ui.UserId, ui.ItemId })
                 .Select(g => g.First())
                 .ToListAsync();
@@ -50,8 +54,8 @@ namespace RestfulUsersInventory.DataQueries.Queries
         {
             UserItem userItem = await _context.UserItems
                 .AsNoTracking()
-                .Include(ui => ui.Item)
-                .Include(ui => ui.User)
+                .Include(ui => ui.Item) // Required for mapping
+                .Include(ui => ui.User) // Required for mapping
                 .Where(ui => ui.Item.Id == item.Id || ui.Item.Name == item.Name)
                 .FirstOrDefaultAsync(ui => ui.UserId == userId);
             if (userItem == null)
@@ -72,6 +76,13 @@ namespace RestfulUsersInventory.DataQueries.Queries
             {
                 return;
             }
+            bool userExistsInDb = await _context.Users
+                .AsNoTracking()
+                .AnyAsync(u => u.Id == userId);
+            if (!userExistsInDb)
+            {
+                return;
+            }
             int numberOfItems = await GetNumberOfMatchingItemsForUser(itemFromDb.Id, userId);
             if (numberOfItems == UserItemDto.MaximumNumberOfAnyItemAllowed)
             {
@@ -85,8 +96,6 @@ namespace RestfulUsersInventory.DataQueries.Queries
         public async Task RemoveItemForUser(int userId, ItemDto item)
         {
             UserItem userItem = await _context.UserItems
-                .Include(ui => ui.Item)
-                .Include(ui => ui.User)
                 .Where(ui => ui.Item.Id == item.Id || ui.Item.Name == item.Name)
                 .FirstOrDefaultAsync(ui => ui.UserId == userId);
             if (userItem == null)

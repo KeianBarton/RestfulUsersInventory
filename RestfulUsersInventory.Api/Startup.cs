@@ -5,9 +5,13 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json;
 using RestfulUsersInventory.DataAccess;
 using RestfulUsersInventory.DataQueries;
 using RestfulUsersInventory.DataQueries.DTOs;
+using System;
+using System.IO;
+using System.Reflection;
 
 namespace RestfulUsersInventory.Api
 {
@@ -24,6 +28,15 @@ namespace RestfulUsersInventory.Api
         {
             // EF Database and Queries
             string connectionString = _configuration.GetConnectionString("RestfulUsersInventoryDb");
+            if (connectionString.Contains("%DATABASEROUTEPATH%"))
+            {
+                string dbFolderPath = Path.Combine
+                (
+                    Environment.CurrentDirectory,
+                    "..\\RestfulUsersInventory.Database"
+                );
+                connectionString = connectionString.Replace("%DATABASEROUTEPATH%", dbFolderPath);
+            }
             services.AddDbContext<ApplicationDbContext>
             (
                 options => options
@@ -43,7 +56,11 @@ namespace RestfulUsersInventory.Api
 
             // MVC
             services.AddMvc()
-                .SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+                .SetCompatibilityVersion(CompatibilityVersion.Version_2_2)
+                .AddJsonOptions(options =>
+                {
+                    options.SerializerSettings.Formatting = Formatting.Indented;
+                });
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)

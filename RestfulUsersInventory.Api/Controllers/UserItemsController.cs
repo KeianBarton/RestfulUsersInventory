@@ -25,9 +25,9 @@ namespace RestfulUsersInventory.Api.Controllers
 
         private async Task<IActionResult> GetItemForUser(int userId, ItemDto itemReq)
         {
-            if (itemReq == null)
+            if (itemReq == null || itemReq.Id < 1 || userId < 1)
             {
-                return BadRequest("Item in request is malformed");
+                return BadRequest("Item in request is malformed / has invalid IDs");
             }
             UserDto user = await _queryHelper.UserQueries.GetUser(userId);
             if (user == null)
@@ -65,7 +65,7 @@ namespace RestfulUsersInventory.Api.Controllers
         {
             if (items == null || !items.Any())
             {
-                return BadRequest("Items in request are malformed");
+                return BadRequest("Items in request body could not be parsed");
             }
             UserDto user = await _queryHelper.UserQueries.GetUser(userId);
             if (user == null)
@@ -74,9 +74,12 @@ namespace RestfulUsersInventory.Api.Controllers
             }
             foreach (ItemDto item in items)
             {
+                // Regardless of what items were added or not, the API should
+                // cleanly tell the user the latest inventory
                 await _queryHelper.UserItemQueries.AddItemForUser(userId, item);
             }
-            IEnumerable<UserItemDto> userItems = await _queryHelper.UserItemQueries.GetAllItemsForUser(userId);
+            IEnumerable<UserItemDto> userItems = await _queryHelper.UserItemQueries
+                .GetAllItemsForUser(userId);
             return Ok(userItems);
         }
 
@@ -85,7 +88,7 @@ namespace RestfulUsersInventory.Api.Controllers
         {
             if (items == null || !items.Any())
             {
-                return BadRequest("Items in request are malformed");
+                return BadRequest("Items in request body could not be parsed");
             }
             UserDto user = await _queryHelper.UserQueries.GetUser(userId);
             if (user == null)
@@ -94,9 +97,12 @@ namespace RestfulUsersInventory.Api.Controllers
             }
             foreach (ItemDto item in items)
             {
+                // Regardless of what items were removed or not, the API should
+                // cleanly tell the user the latest inventory
                 await _queryHelper.UserItemQueries.RemoveItemForUser(userId, item);
             }
-            IEnumerable<UserItemDto> userItems = await _queryHelper.UserItemQueries.GetAllItemsForUser(userId);
+            IEnumerable<UserItemDto> userItems = await _queryHelper.UserItemQueries
+                .GetAllItemsForUser(userId);
             return Ok(userItems);
         }
     }
