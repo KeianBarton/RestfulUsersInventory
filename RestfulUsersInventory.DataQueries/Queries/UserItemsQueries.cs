@@ -28,23 +28,22 @@ namespace RestfulUsersInventory.DataQueries.Queries
                 .AnyAsync(ui => ui.UserId == userId);
         }
 
-        public async Task AddItemForUser(int userId, ItemDto item)
+        public async Task<IEnumerable<UserItemDto>> GetAllItemsForUser(int userId)
         {
-            Item itemFromDb = await _context.Items
+            IEnumerable<UserItem> userItems = await _context.UserItems
                 .AsNoTracking()
-                .SingleOrDefaultAsync(i => i.Id == item.Id || i.Name == item.Name);
-            if (itemFromDb == null)
+                .Include(ui => ui.Item)
+                .Include(ui => ui.User)
+                .Where(ui => ui.UserId == userId)
+                .GroupBy(ui => new { ui.UserId, ui.ItemId })
+                .Select(g => g.First())
+                .ToListAsync();
+            IEnumerable<UserItemDto> userItemsDtos = _mapper.Map<IEnumerable<UserItemDto>>(userItems);
+            foreach(UserItemDto ui in userItemsDtos)
             {
-                return;
+                ui.ItemCount = await GetNumberOfMatchingItemsForUser(ui.ItemId, ui.UserId);
             }
-            int numberOfItems = await GetNumberOfMatchingItemsForUser(itemFromDb.Id, userId);
-            if (numberOfItems > UserItemDto.MaximumNumberOfAnyItemAllowed)
-            {
-                return;
-            }
-            var userItem = new UserItem { ItemId = itemFromDb.Id, UserId = userId };
-            _context.Add(userItem);
-            await _context.SaveChangesAsync();
+            return userItemsDtos;
         }
 
         public async Task<UserItemDto> GetMatchingItemsForUser(int userId, ItemDto item)
@@ -64,22 +63,23 @@ namespace RestfulUsersInventory.DataQueries.Queries
             return userItemDto;
         }
 
-        public async Task<IEnumerable<UserItemDto>> GetAllItemsForUser(int userId)
+        public async Task AddItemForUser(int userId, ItemDto item)
         {
-            IEnumerable<UserItem> userItems = await _context.UserItems
+            Item itemFromDb = await _context.Items
                 .AsNoTracking()
-                .Include(ui => ui.Item)
-                .Include(ui => ui.User)
-                .Where(ui => ui.UserId == userId)
-                .GroupBy(ui => new { ui.UserId, ui.ItemId })
-                .Select(g => g.First())
-                .ToListAsync();
-            IEnumerable<UserItemDto> userItemsDtos = _mapper.Map<IEnumerable<UserItemDto>>(userItems);
-            foreach(UserItemDto ui in userItemsDtos)
+                .SingleOrDefaultAsync(i => i.Id == item.Id || i.Name == item.Name);
+            if (itemFromDb == null)
             {
-                ui.ItemCount = await GetNumberOfMatchingItemsForUser(ui.ItemId, ui.UserId);
+                return;
             }
-            return userItemsDtos;
+            int numberOfItems = await GetNumberOfMatchingItemsForUser(itemFromDb.Id, userId);
+            if (numberOfItems > UserItemDto.MaximumNumberOfAnyItemAllowed)
+            {
+                return;
+            }
+            var userItem = new UserItem { ItemId = itemFromDb.Id, UserId = userId };
+            _context.Add(userItem);
+            await _context.SaveChangesAsync();
         }
 
         public async Task RemoveItemForUser(int userId, ItemDto item)
