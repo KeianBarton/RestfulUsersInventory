@@ -9,6 +9,7 @@ namespace RestfulUsersInventory.DataQueries.DTOs
         {
             CreateMap<Item, ItemDto>().ReverseMap();
             CreateMap<User, UserDto>().ReverseMap();
+            CreateMap<UserItem, UserItemDto>();
         }
     }
 }

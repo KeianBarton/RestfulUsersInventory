@@ -8,11 +8,11 @@ using System.Threading.Tasks;
 namespace RestfulUsersInventory.Api.Controllers
 {
     [Route("api/")]
-    public class UserInventoryController : ControllerBase
+    public class UserItemsController : ControllerBase
     {
         private readonly IQueryHelper _queryHelper;
 
-        public UserInventoryController(IQueryHelper queryHelper)
+        public UserItemsController(IQueryHelper queryHelper)
         {
             _queryHelper = queryHelper;
         }
@@ -34,8 +34,8 @@ namespace RestfulUsersInventory.Api.Controllers
             {
                 return NotFound($"No user can be found with ID {userId}");
             }
-            ItemDto itemRes = await _queryHelper.UserInventoryQueries
-                .GetFirstMatchingItemForUser(userId, itemReq);
+            UserItemDto itemRes = await _queryHelper.UserItemQueries
+                .GetMatchingItemsForUser(userId, itemReq);
             if (itemRes == null)
             {
                 return NotFound($"No items matched for request for user with ID {userId}");
@@ -51,13 +51,13 @@ namespace RestfulUsersInventory.Api.Controllers
             {
                 return NotFound($"No user can be found with ID {userId}");
             }
-            IEnumerable<ItemDto> items = await _queryHelper.UserInventoryQueries
-                .GetItemsForUser(userId);
-            if (!items.Any())
+            IEnumerable<UserItemDto> userItems = await _queryHelper.UserItemQueries
+                .GetAllItemsForUser(userId);
+            if (!userItems.Any())
             {
                 return NotFound($"No items found for user with ID {userId}");
             }
-            return Ok(items);
+            return Ok(userItems);
         }
 
         [HttpPost("Users/{userId}/Items")]
@@ -77,38 +77,29 @@ namespace RestfulUsersInventory.Api.Controllers
             {
                 return NotFound($"No user can be found with ID {userId}");
             }
-            int numberOfItemUserHas = await _queryHelper.UserInventoryQueries
-                .GetCountOfItemUserHas(userId, itemFromDb.Id);
-            if (numberOfItemUserHas == UserDto.MaximumNumberOfAnyItemTypeAllowed)
-            {
-                return Forbid($"User with ID {userId} has the maximum number of item with ID {itemFromDb.Id} allowed");
-            }
-            ItemDto itemAdded = await _queryHelper.UserInventoryQueries
-                .AddItemForUser(userId, item);
-            return Ok(itemAdded);
+            await _queryHelper.UserItemQueries.AddItemForUser(userId, item);
+            UserItemDto userItem = await _queryHelper.UserItemQueries.GetMatchingItemsForUser(userId, itemFromDb);
+            return Ok(userItem);
         }
 
         [HttpPost("Users/{userId}/Items")]
         public async Task<IActionResult> AddItemsForUser(int userId, [FromBody] IEnumerable<ItemDto> items)
         {
-            //if (items == null || !items.Any())
-            //{
-            //    return BadRequest("Items in request are malformed");
-            //}
-            //UserDto user = await _queryHelper.UserQueries.GetUser(userId);
-            //if (user == null)
-            //{
-            //    return NotFound($"No user can be found with ID {userId}");
-            //}
-            //var itemsAdded = new List<ItemDto>();
-            //var itemsFromDb = _queryHelper.ItemQueries.GetItems()
-            //int numberOfItemUserHas = await _queryHelper.UserInventoryQueries.GetCountOfItemUserHas(userId, itemInGroup.Id);
-            //foreach (ItemDto itemInGroup in ItemsThatCanBeAddedBeforeLimit(items, numberOfItemsUserHas))
-            //{
-            //    ItemDto itemAdded = await _queryHelper.UserInventoryQueries.AddItemForUser(userId, itemInGroup);
-            //    itemsAdded.Add(itemAdded);
-            //}
-            //return Ok(itemsAdded);
+            if (items == null || !items.Any())
+            {
+                return BadRequest("Items in request are malformed");
+            }
+            UserDto user = await _queryHelper.UserQueries.GetUser(userId);
+            if (user == null)
+            {
+                return NotFound($"No user can be found with ID {userId}");
+            }
+            foreach (ItemDto item in items)
+            {
+                await _queryHelper.UserItemQueries.AddItemForUser(userId, item);
+            }
+            IEnumerable<UserItemDto> userItems = await _queryHelper.UserItemQueries.GetAllItemsForUser(userId);
+            return Ok(userItems);
         }
 
         [HttpDelete("Users/{userId}/Items")]
@@ -128,43 +119,35 @@ namespace RestfulUsersInventory.Api.Controllers
             {
                 return NotFound($"No user can be found with ID {userId}");
             }
-            bool userHasItem = await _queryHelper.UserInventoryQueries
+            bool userHasItem = await _queryHelper.UserItemQueries
                 .DoesUserHaveItem(userId, item);
             if (!userHasItem)
             {
                 return NotFound($"The user with ID {userId} does not have item in the request");
             }
-            await _queryHelper.UserInventoryQueries
-                .RemoveFirstMatchingItemPossibleForUser(userId, item);
-            return Ok();
+            await _queryHelper.UserItemQueries.RemoveItemForUser(userId, item);
+            UserItemDto userItem = await _queryHelper.UserItemQueries.GetMatchingItemsForUser(userId, itemFromDb);
+            return Ok(userItem);
         }
 
         [HttpDelete("Users/{userId}/Items")]
         public async Task<IActionResult> RemoveItemsForUser(int userId, [FromBody] IEnumerable<ItemDto> items)
         {
-            //if (items == null || !items.Any())
-            //{
-            //    return BadRequest("Items in request are malformed");
-            //}
-            //UserDto user = await _queryHelper.UserQueries.GetUser(userId);
-            //if (user == null)
-            //{
-            //    return NotFound($"No user can be found with ID {userId}");
-            //}
-            //await _queryHelper.UserInventoryQueries.RemoveItemsForUser(userId, items);
-            //return Ok();
-        }
-
-        private IEnumerable<ItemDto> ItemsThatCanBeAddedBeforeLimit(IEnumerable<ItemDto> items, int numberOfItemsUserHas)
-        {
+            if (items == null || !items.Any())
+            {
+                return BadRequest("Items in request are malformed");
+            }
+            UserDto user = await _queryHelper.UserQueries.GetUser(userId);
+            if (user == null)
+            {
+                return NotFound($"No user can be found with ID {userId}");
+            }
             foreach (ItemDto item in items)
             {
-                if (numberOfItemsUserHas < UserDto.MaximumNumberOfAnyItemTypeAllowed)
-                {
-                    yield return item;
-                    numberOfItemsUserHas++;
-                }
+                await _queryHelper.UserItemQueries.RemoveItemForUser(userId, item);
             }
+            IEnumerable<UserItemDto> userItems = await _queryHelper.UserItemQueries.GetAllItemsForUser(userId);
+            return Ok(userItems);
         }
     }
 }

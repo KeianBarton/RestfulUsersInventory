@@ -22,7 +22,9 @@ namespace RestfulUsersInventory.DataQueries.Queries
 
         public async Task<UserDto> GetUser(int id)
         {
-            User user = await _context.Users.SingleOrDefaultAsync(i => i.Id == id);
+            User user = await _context.Users
+                .AsNoTracking()
+                .SingleOrDefaultAsync(i => i.Id == id);
             UserDto dto = _mapper.Map<UserDto>(user);
             return dto;
         }
@@ -37,6 +39,7 @@ namespace RestfulUsersInventory.DataQueries.Queries
         public async Task<IEnumerable<UserDto>> GetUsers(IEnumerable<int> ids)
         {
             IEnumerable<User> users = await _context.Users
+                .AsNoTracking()
                 .Where(i => ids.Any(id => id == i.Id))
                 .ToListAsync();
             IEnumerable<UserDto> dtos = _mapper.Map<IEnumerable<UserDto>>(users);

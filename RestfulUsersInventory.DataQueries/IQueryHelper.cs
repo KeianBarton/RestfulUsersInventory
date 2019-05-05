@@ -6,6 +6,6 @@ namespace RestfulUsersInventory.DataQueries
     {
         IItemQueries ItemQueries { get; }
         IUserQueries UserQueries { get; }
-        IUserInventoryQueries UserInventoryQueries { get; }
+        IUserItemQueries UserItemQueries { get; }
     }
 }
